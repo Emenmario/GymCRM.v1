@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import StaffDashboard from './pages/StaffDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
@@ -45,6 +46,15 @@ const App = () => {
                 <AdminDashboard />
               </ProtectedRoute>
             } 
+          />
+
+          <Route
+            path="/super-admin"
+            element={
+              <ProtectedRoute allowedRole="super_admin">
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            }
           />
 
           <Route path="*" element={<Navigate to="/" replace />} />

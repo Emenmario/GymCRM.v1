@@ -24,8 +24,12 @@ const Login = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
       localStorage.setItem('username', response.data.username);
+      localStorage.setItem('gym_id', response.data.gym_id || '');
+      localStorage.setItem('gym_name', response.data.gym_name || '');
 
-      if (response.data.role === 'admin') {
+      if (response.data.role === 'super_admin') {
+        navigate('/super-admin');
+      } else if (response.data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/staff');

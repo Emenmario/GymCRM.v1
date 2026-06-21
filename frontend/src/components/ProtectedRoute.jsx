@@ -8,7 +8,9 @@ const ProtectedRoute = ({ children, allowedRole }) => {
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRole && role !== allowedRole) {
+  const allowedRoles = Array.isArray(allowedRole) ? allowedRole : allowedRole ? [allowedRole] : null;
+
+  if (allowedRoles && !allowedRoles.includes(role)) {
     return <Navigate to="/" replace />;
   }
 

@@ -13,15 +13,15 @@ import {
 } from 'lucide-react';
 
 const StaffDashboard = () => {
+  const gymName = localStorage.getItem('gym_name') || 'Unknown Gym';
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     phone: '',
     membership_tier: 'Standard',
-    duration_months: '1'
+    duration_months: '1',
+    transaction_ref: ''
   });
-  const [txnRef, setTxnRef] = useState('');
-  const [memberId, setMemberId] = useState(null);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,38 +49,20 @@ const StaffDashboard = () => {
 
     try {
       const res = await API.post('/members', formData);
-      setMemberId(res.data.id);
-      setMessage('SUCCESS: MEMBER_CREATED');
+      setMessage(`SUCCESS: MEMBER_CREATED | TRANSACTION_REF: ${res.data.transaction_ref}`);
       fetchMembers();
+      setFormData({ full_name: '', email: '', phone: '', membership_tier: 'Standard', duration_months: '1', transaction_ref: '' });
     } catch (err) {
       setIsError(true);
-      if (err.response && err.response.status === 409) {
-        setMessage('REJECTED: EMAIL_ALREADY_REGISTERED');
+      const apiMessage = err.response?.data?.error;
+
+      if (err.response?.status === 409) {
+        setMessage(apiMessage || 'REJECTED: EMAIL_ALREADY_REGISTERED');
+      } else if (apiMessage) {
+        setMessage(apiMessage);
       } else {
         setMessage('SYSTEM_ERROR: REGISTRATION_FAILED');
       }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handlePayment = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setIsError(false);
-    try {
-      await API.post('/payments', {
-        member_id: memberId,
-        amount: formData.membership_tier === 'Elite' ? 1500 : 800,
-        transaction_ref: txnRef
-      });
-      setMessage('PAYMENT_PENDING_APPROVAL');
-      setMemberId(null);
-      setTxnRef('');
-      setFormData({ full_name: '', email: '', phone: '', membership_tier: 'Standard', duration_months: '1' });
-    } catch (err) {
-      setIsError(true);
-      setMessage('SYSTEM_ERROR: PAYMENT_FAILED');
     } finally {
       setIsSubmitting(false);
     }
@@ -91,59 +73,60 @@ const StaffDashboard = () => {
     m.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const needsRenewal = (member) => {
+    const daysLeft = Number(member.days_left);
+    return member.is_expiring === true || (Number.isFinite(daysLeft) && daysLeft <= 5);
+  };
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white p-6 md:p-12 font-sans selection:bg-white selection:text-black">
       <header className="max-w-6xl mx-auto mb-12 flex justify-between items-end border-b border-[#222] pb-6">
         <div>
           <p className="text-[10px] font-mono text-gray-500 tracking-[0.3em] uppercase mb-2">Front_Desk_Terminal</p>
           <h1 className="text-4xl font-black italic tracking-tighter uppercase">Staff <span className="text-gray-500 underline decoration-1 underline-offset-4">Portal</span></h1>
+          <p className="mt-3 text-[10px] font-mono text-gray-500 uppercase tracking-[0.25em]">Gym: {gymName}</p>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-5 space-y-8">
-          {!memberId ? (
-            <section className="bg-[#151515] p-8 border border-[#222]">
-              <h2 className="text-xs font-black tracking-[0.2em] uppercase mb-8 flex items-center gap-2">
-                <UserPlus size={16} /> New Enrollment
-              </h2>
-              <form onSubmit={handleRegister} className="space-y-8">
-                <div className="group">
-                  <label className="block text-[10px] text-gray-600 uppercase mb-2">Full Name</label>
-                  <input type="text" className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm uppercase" onChange={(e) => setFormData({...formData, full_name: e.target.value})} required />
-                </div>
-                <div className="group">
-                  <label className="block text-[10px] text-gray-600 uppercase mb-2">Email Address</label>
-                  <input type="email" className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm" onChange={(e) => setFormData({...formData, email: e.target.value})} required />
-                </div>
-                <div className="group">
-                  <label className="block text-[10px] text-gray-600 uppercase mb-2">Membership Tier</label>
-                  <select className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm appearance-none cursor-pointer" onChange={(e) => setFormData({...formData, membership_tier: e.target.value})}>
-                    <option value="Standard" className="bg-[#151515]">Standard (800 ETB)</option>
-                    <option value="Elite" className="bg-[#151515]">Elite (1500 ETB)</option>
-                  </select>
-                </div>
-                <button disabled={isSubmitting} className="w-full bg-white text-black font-black py-4 uppercase text-xs tracking-[0.3em] hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-                  {isSubmitting ? 'PROCESSING' : 'INITIALIZE_REGISTRATION'} <ArrowRight size={14} />
-                </button>
-              </form>
-            </section>
-          ) : (
-            <section className="bg-[#151515] p-8 border border-white">
-              <h2 className="text-xs font-black tracking-[0.2em] uppercase mb-8 flex items-center gap-2 text-yellow-500">
-                <CreditCard size={16} /> Payment: {formData.full_name}
-              </h2>
-              <form onSubmit={handlePayment} className="space-y-8">
-                <div className="group">
-                  <label className="block text-[10px] text-gray-600 uppercase mb-2">Transaction ID</label>
-                  <input type="text" className="w-full bg-transparent border-b border-white py-2 outline-none font-mono text-lg tracking-widest uppercase placeholder:text-[#333]" value={txnRef} onChange={(e) => setTxnRef(e.target.value)} required autoFocus placeholder="REF_CODE" />
-                </div>
-                <button disabled={isSubmitting} className="w-full bg-white text-black font-black py-4 uppercase text-xs tracking-[0.3em] hover:bg-green-500 hover:text-white transition-all">
-                  {isSubmitting ? 'SENDING' : 'VALIDATE_PAYMENT'}
-                </button>
-              </form>
-            </section>
-          )}
+          <section className="bg-[#151515] p-8 border border-[#222]">
+            <h2 className="text-xs font-black tracking-[0.2em] uppercase mb-8 flex items-center gap-2">
+              <UserPlus size={16} /> New Enrollment
+            </h2>
+            <form onSubmit={handleRegister} className="space-y-8">
+              <div className="group">
+                <label className="block text-[10px] text-gray-600 uppercase mb-2">Full Name</label>
+                <input type="text" className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm uppercase" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} required />
+              </div>
+              <div className="group">
+                <label className="block text-[10px] text-gray-600 uppercase mb-2">Email Address</label>
+                <input type="email" className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+              </div>
+              <div className="group">
+                <label className="block text-[10px] text-gray-600 uppercase mb-2">Phone Number</label>
+                <input type="tel" className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="09xx xxx xxx" />
+              </div>
+              <div className="group">
+                <label className="block text-[10px] text-gray-600 uppercase mb-2">Membership Tier</label>
+                <select className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm appearance-none cursor-pointer" value={formData.membership_tier} onChange={(e) => setFormData({...formData, membership_tier: e.target.value})}>
+                  <option value="Standard" className="bg-[#151515]">Standard (800 ETB)</option>
+                  <option value="Elite" className="bg-[#151515]">Elite (1500 ETB)</option>
+                </select>
+              </div>
+              <div className="group">
+                <label className="block text-[10px] text-gray-600 uppercase mb-2">Duration (Months)</label>
+                <input type="number" min="1" className="w-full bg-transparent border-b border-[#333] py-2 outline-none focus:border-white transition-all font-mono text-sm" value={formData.duration_months} onChange={(e) => setFormData({...formData, duration_months: e.target.value})} required />
+              </div>
+              <div className="group">
+                <label className="block text-[10px] text-gray-600 uppercase mb-2">Transaction ID</label>
+                <input type="text" className="w-full bg-transparent border-b border-white py-2 outline-none font-mono text-lg tracking-widest uppercase placeholder:text-[#333]" value={formData.transaction_ref} onChange={(e) => setFormData({...formData, transaction_ref: e.target.value})} required placeholder="REF_CODE" />
+              </div>
+              <button disabled={isSubmitting} className="w-full bg-white text-black font-black py-4 uppercase text-xs tracking-[0.3em] hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                {isSubmitting ? 'PROCESSING' : 'INITIALIZE_REGISTRATION'} <ArrowRight size={14} />
+              </button>
+            </form>
+          </section>
         </div>
 
         <div className="lg:col-span-7 space-y-6">
@@ -169,6 +152,7 @@ const StaffDashboard = () => {
                       <div className="flex gap-2 mt-1">
                         <span className="text-[8px] text-gray-600 font-mono italic">#{m.id.substring(0,4)}</span>
                         <span className="text-[8px] text-blue-500 font-mono bg-blue-500/5 px-1 border border-blue-500/20">{m.total_months_active || 0}M_TENURE</span>
+                        {needsRenewal(m) && <span className="text-[8px] font-black uppercase px-1 border border-red-500/40 bg-red-500/10 text-red-400">RENEWAL_DUE</span>}
                       </div>
                     </td>
                     <td className="p-4">
@@ -180,7 +164,18 @@ const StaffDashboard = () => {
                       <p className={`text-[10px] font-mono ${m.is_expiring ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
                         {m.days_left < 0 ? 'VOID' : `${m.days_left}D_REMAINING`}
                       </p>
-                      {m.is_expiring && <p className="text-[7px] text-red-500 animate-pulse uppercase tracking-[0.2em] font-black mt-1">!_RENEW_NOW_!</p>}
+                      <div className="mt-2 flex justify-end gap-2">
+                        {needsRenewal(m) && <p className="text-[7px] text-red-500 animate-pulse uppercase tracking-[0.2em] font-black">!_RENEW_NOW_!</p>}
+                        {needsRenewal(m) && (
+                          <button
+                            type="button"
+                            onClick={() => startRenewal(m)}
+                            className="text-[8px] font-black uppercase px-2 py-1 border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition-all"
+                          >
+                            Renew
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

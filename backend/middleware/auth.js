@@ -14,10 +14,18 @@ const verifyToken = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();
 };
 
-module.exports = { verifyToken, isAdmin };
+const isSuperAdmin = (req, res, next) => {
+  if (req.user.role !== 'super_admin') {
+    return res.status(403).json({ error: 'Super admin access required' });
+  }
+
+  next();
+};
+
+module.exports = { verifyToken, isAdmin, isSuperAdmin };

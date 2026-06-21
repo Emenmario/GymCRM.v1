@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const gymName = localStorage.getItem('gym_name') || 'Unknown Gym';
   const [pendingPayments, setPendingPayments] = useState([]);
   const [allMembers, setAllMembers] = useState([]);
   const [staffUsername, setStaffUsername] = useState('');
@@ -78,6 +79,7 @@ const AdminDashboard = () => {
           <h1 className="text-5xl font-black italic tracking-tighter uppercase leading-none">
             Owner <span className="text-gray-500 underline decoration-1 underline-offset-8">Terminal</span>
           </h1>
+          <p className="mt-3 text-[10px] font-mono text-gray-500 uppercase tracking-[0.25em]">Gym: {gymName}</p>
         </div>
         
         <div className="flex flex-wrap gap-4 items-center">
