@@ -174,7 +174,7 @@ const AdminDashboard = () => {
                       <td className="p-6">
                         <p className="text-sm font-black uppercase tracking-tight">{m.full_name}</p>
                         <div className="flex gap-2 items-center mt-1">
-                           <span className="text-[9px] font-mono text-gray-600">#{m.id.substring(0, 6)}</span>
+                            <span className="text-[9px] font-mono text-gray-600">#{String(m.id).substring(0, 6)}</span>
                            <span className="text-[8px] bg-blue-950/30 text-blue-400 px-1.5 py-0.5 border border-blue-900/30 flex items-center gap-1 font-mono">
                              <Clock size={8} /> {m.total_months_active || 0}m_tenure
                            </span>

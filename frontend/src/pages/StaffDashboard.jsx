@@ -150,8 +150,7 @@ const StaffDashboard = () => {
                     <td className="p-4">
                       <p className="text-xs font-bold uppercase tracking-tight">{m.full_name}</p>
                       <div className="flex gap-2 mt-1">
-                        <span className="text-[8px] text-gray-600 font-mono italic">#{m.id.substring(0,4)}</span>
-                        <span className="text-[8px] text-blue-500 font-mono bg-blue-500/5 px-1 border border-blue-500/20">{m.total_months_active || 0}M_TENURE</span>
+<span className="text-[8px] text-gray-600 font-mono italic">#{String(m.id).substring(0,4)}</span>                        <span className="text-[8px] text-blue-500 font-mono bg-blue-500/5 px-1 border border-blue-500/20">{m.total_months_active || 0}M_TENURE</span>
                         {needsRenewal(m) && <span className="text-[8px] font-black uppercase px-1 border border-red-500/40 bg-red-500/10 text-red-400">RENEWAL_DUE</span>}
                       </div>
                     </td>
