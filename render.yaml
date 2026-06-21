@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: gymcrm-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node app.js
+    envVars:
+      - key: DB_HOST
+        value: localhost
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: crm
+      - key: DB_USER
+        scope: secret
+      - key: DB_PASSWORD
+        scope: secret
+      - key: JWT_SECRET
+        scope: secret
+
+  - type: static
+    name: gymcrm-frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - path: /
+        destination: /index.html
