@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import API from '../api/axios';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User, ShieldAlert, Activity } from 'lucide-react';
+import { Lock, User, ShieldAlert, Activity, KeyRound } from 'lucide-react';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -47,10 +47,11 @@ const Login = () => {
       {/* Background Tech Detail */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none overflow-hidden">
         <div className="text-[12rem] font-black text-center uppercase leading-none break-all">
-NO PAIN NO GAIN  EAT SLEEP TRAIN <br/> IRON PARADISE <br/> MAXIMUM EFFORT  PURE GRIT  HEAVY DUTY  BREAK LIMITS  REPS TO FAILURE  BLOOD AND GUTS  UNSTOPPABLE DRIVE        </div>
+          NO PAIN NO GAIN  EAT SLEEP TRAIN <br/> IRON PARADISE <br/> MAXIMUM EFFORT  PURE GRIT  HEAVY DUTY  BREAK LIMITS  REPS TO FAILURE  BLOOD AND GUTS  UNSTOPPABLE DRIVE
+        </div>
       </div>
 
-      <div className="w-full max-w-md relative group">
+      <div className="w-full max-w-md relative group my-8">
         
         {/* Subtle Glow Effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#333] to-[#111] rounded-sm blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
@@ -125,7 +126,32 @@ NO PAIN NO GAIN  EAT SLEEP TRAIN <br/> IRON PARADISE <br/> MAXIMUM EFFORT  PURE 
             </button>
           </form>
 
-          <footer className="mt-12 pt-6 border-t border-[#222]">
+          {/* 🔐 TESTING CREDENTIALS PANEL */}
+          <div className="mt-8 p-4 bg-[#1a1a1a] border border-[#262626] rounded-sm font-mono">
+            <div className="flex items-center gap-2 mb-3 border-b border-[#262626] pb-2">
+              <KeyRound size={12} className="text-gray-400" />
+              <span className="text-[10px] font-black tracking-wider text-gray-400 uppercase">System Evaluation Environment</span>
+            </div>
+            
+            <div className="space-y-2.5 text-[10px] text-gray-400">
+              <div>
+                <span className="text-white font-bold block uppercase tracking-tight mb-0.5">⚡ SuperAdmin:</span>
+                <span className="text-gray-500">User:</span> superadmin <span className="text-gray-600 mx-1">|</span> <span className="text-gray-500">Pass:</span> ChangeMe123!
+              </div>
+              
+              <div className="pt-2 border-t border-[#222]">
+                <span className="text-white font-bold block uppercase tracking-tight mb-0.5">🏢 Pre-Configured Accounts:</span>
+                <div>
+                  <span className="text-gray-500">Owner:</span> owner <span className="text-gray-600 mx-1">|</span> <span className="text-gray-500">Pass:</span> rigel
+                </div>
+                <div className="mt-0.5">
+                  <span className="text-gray-500">Staff:</span> staff1 <span className="text-gray-600 mx-1">|</span> <span className="text-gray-500">Pass:</span> rigel
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer className="mt-8 pt-6 border-t border-[#222]">
             <p className="text-[9px] font-mono text-gray-700 leading-relaxed text-center uppercase tracking-tighter">
               Authorized use only. Connection is encrypted and logged. Unauthorized access attempts will be flagged.
             </p>
